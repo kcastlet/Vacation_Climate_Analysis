@@ -49,13 +49,13 @@ def home():
 @app.route("/api/v1.0/precipitation")
 def prcp():
     prcp_query = session.query(measurement.date, measurement.prcp).filter(measurement.date >= "2016-08-23").\
-    filter(measurement.date <= "2017-08-23").all()
+    filter(measurement.date <= "2017-08-22").all()
 
     precipitation = []
-    for query in prcp_query:
-        date = {}
-        date[query.date] = query.prcp
-        precipitation.append(date_dict)
+    for x in prcp_query:
+        dates = {}
+        dates[x.dates] = x.prcp
+        precipitation.append(dates)
 
     return jsonify(precipitation)
 
@@ -63,40 +63,26 @@ def prcp():
 
 @app.route("/api/v1.0/stations")
 def stations():
-    results = session.query(station.station).all()
-    results_list = list(np.ravel(results))
-
-    return jsonify(results_list)
-
+   
 
 
 @app.route("/api/v1.0/tobs")
 def tobs():
-    results = session.query(measurement.tobs).\
+    tobs_return = session.query(measurement.tobs).\
         filter(measurement.date >= "2016-08-23").\
-        filter(measurement.date <= "2017-08-23").all()
-    results_list = list(np.ravel(results))
-
-    return jsonify(results_list)
-
+        filter(measurement.date <= "2017-08-22").all()
+    
 
 
 @app.route("/api/v1.0/<start>")
 def start(start):
-    end_date = session.query(func.max(measurement.date)).all()[0][0]
-    temps = calc_temps(start, end_date)
-    temps_list = list(np.ravel(temps))
-
-    return jsonify(temps_list)
+    
 
 
 
 @app.route("/api/v1.0/<start>/<end>")
 def start_end(start, end_date):
-    temps = calc_temps(start, end_date)
-    temps_list = list(np.ravel(temps))
-
-    return jsonify(temps_list)
+    
 
 if __name__ == '__main__':
     app.run(debug=True)
