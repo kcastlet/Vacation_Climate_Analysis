@@ -38,27 +38,26 @@ app = Flask(__name__)
 #Match URLs to view functions in Flask
 @app.route("/")
 def home():
-    return 'Welcome to the API for the climate in Hawaii.'
-    'These links can be accessed:<br/>'.\
-		   '<a href="/api/v1.0/precipitation">/api/v1.0/precipitation</a><br/>'.\
-		   '<a href="/api/v1.0/stations">/api/v1.0/stations</a><br/>'.\
-		   '<a href="/api/v1.0/tobs">/api/v1.0/tobs</a><br/>'.\
-		   '<a href="/api/v1.0/&lt;start&gt;">/api/v1.0/&lt;start&gt;</a><br/>'.\
-		   '<a href="/api/v1.0/&lt;start&gt;/&lt;end&gt;">/api/v1.0/&lt;start&gt;/&lt;end&gt;</a>'
+    return ('Welcome to an API for the climate in Hawaii.
+    Accessible links:<br>
+	/api/v1.0/precipitation <br>
+    /api/v1.0/stations <br>
+    /api/v1.0/tobs <br>
+    /api/v1.0/&lt;start&gt; where start is a date in YYYY-MM-DD format <br> 
+    /api/v1.0/&lt;start&gt;/&lt;end&gt; where start and end are dates in YYYY-MM-DD format')
 
 @app.route("/api/v1.0/precipitation")
 def prcp():
-    results = session.query(measurement.date, measurement.prcp).\
-    filter(measurement.date >= "2016-08-23").\
+    prcp_query = session.query(measurement.date, measurement.prcp).filter(measurement.date >= "2016-08-23").\
     filter(measurement.date <= "2017-08-23").all()
 
-    dict = []
-    for row in results:
-        date_dict = {}
-        date_dict[row.date] = row.prcp
-        dict.append(date_dict)
+    precipitation = []
+    for query in prcp_query:
+        date = {}
+        date[query.date] = query.prcp
+        precipitation.append(date_dict)
 
-    return jsonify(dict)
+    return jsonify(precipitation)
 
 
 
@@ -83,7 +82,7 @@ def tobs():
 
 
 @app.route("/api/v1.0/<start>")
-def start_date(start):
+def start(start):
     end_date = session.query(func.max(measurement.date)).all()[0][0]
     temps = calc_temps(start, end_date)
     temps_list = list(np.ravel(temps))
@@ -93,8 +92,8 @@ def start_date(start):
 
 
 @app.route("/api/v1.0/<start>/<end>")
-def start_end_date(start, end):
-    temps = calc_temps(start, end)
+def start_end(start, end_date):
+    temps = calc_temps(start, end_date)
     temps_list = list(np.ravel(temps))
 
     return jsonify(temps_list)
